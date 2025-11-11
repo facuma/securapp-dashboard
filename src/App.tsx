@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { UsergroupAddOutlined, SafetyCertificateOutlined, BarChartOutlined, CommentOutlined, ScheduleOutlined, AppstoreAddOutlined, CheckCircleOutlined, WarningOutlined, PieChartOutlined, ThunderboltOutlined, ArrowRightOutlined } from '@ant-design/icons';
+import { useState, useRef, useEffect } from 'react';
+import { UsergroupAddOutlined, CloseOutlined, SafetyCertificateOutlined, BarChartOutlined, CommentOutlined, ScheduleOutlined, AppstoreAddOutlined, CheckCircleOutlined, WarningOutlined, PieChartOutlined, ThunderboltOutlined, ArrowRightOutlined } from '@ant-design/icons';
 import { BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from 'recharts';
 import { LucideShield, LucideTarget, LucideUsers, LucideMessageCircle, LucideSmartphone, LucideLock, LucideCheckCircle2, LucideAlertTriangle, LucideTrendingUp, LucideShare2, LucideMousePointerClick, LucideShoppingCart } from 'lucide-react';
 
@@ -86,6 +86,62 @@ const PlatformCard = ({ logo, name, priority, target, formats, kpis, color }: { 
   </div>
 );
 
+// --- WIDGET DE INTEGRANTES ---
+const GroupWidget = () => {
+  const [isOpen, setIsOpen] = useState(false);
+  const widgetRef = useRef<HTMLDivElement>(null);
+
+  // Hook para cerrar el menú si se hace clic fuera de él
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (widgetRef.current && !widgetRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [widgetRef]);
+
+  const members = [
+    { name: 'Leonardo Ruiz', id: '537380' },
+    { name: 'Fernando Castro', id: '525874' },
+    { name: 'Laura Cespedes', id: '5200901' },
+    { name: 'Sebastián Dávila', id: '5200440' },
+    { name: 'Belen Garcia Moyanesi', id: '5201072' },
+  ];
+
+  return (
+    <div ref={widgetRef} className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 flex flex-col items-end gap-3">
+      {/* Menú de integrantes */}
+      <div className={`bg-white rounded-xl shadow-2xl p-6 w-[calc(100vw-2rem)] max-w-xs border border-slate-200 transition-all duration-300 ease-in-out origin-bottom-right ${isOpen ? 'scale-100 opacity-100' : 'scale-95 opacity-0 pointer-events-none'}`}>
+        <h4 className="font-bold text-slate-800 text-lg mb-4">Integrantes del Grupo</h4>
+        <ul className="space-y-3">
+          {members.map(member => (
+            <li key={member.id} className="flex justify-between items-center text-slate-600">
+              <span>{member.name}</span>
+              <span className="font-mono text-xs bg-slate-100 text-slate-500 px-2 py-1 rounded">{member.id}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      {/* Botón y etiqueta */}
+      <div className="flex items-center gap-3 justify-end">
+        <div className={`transition-opacity duration-300 ${isOpen ? 'opacity-0' : 'opacity-100'}`}>
+          <div className="bg-white text-slate-700 px-4 py-2 rounded-xl shadow-lg border border-slate-100">
+            <span className="font-semibold text-sm">Integrantes</span>
+          </div>
+        </div>
+        <button onClick={() => setIsOpen(!isOpen)} className="bg-blue-600 text-white w-16 h-16 rounded-full shadow-lg flex items-center justify-center hover:bg-blue-700 transition-all transform hover:scale-110 focus:outline-none focus:ring-4 focus:ring-blue-300" aria-label={isOpen ? "Cerrar menú de integrantes" : "Abrir menú de integrantes"}>
+          {isOpen ? <CloseOutlined style={{ fontSize: '24px' }} /> : <UsergroupAddOutlined style={{ fontSize: '24px' }} />}
+        </button>
+      </div>
+    </div>
+  );
+};
+
 // --- COMPONENTE PRINCIPAL ---
 export default function SegurAppStrategy() {
   const [activeTab, setActiveTab] = useState('inicio');
@@ -101,6 +157,9 @@ export default function SegurAppStrategy() {
 
   return (
     <div className="min-h-screen bg-slate-50 font-sans text-slate-800">
+      {/* WIDGET DE INTEGRANTES */}
+      <GroupWidget />
+
       {/* HEADER / NAV */}
       <header className="sticky top-0 z-50 bg-white shadow-sm border-b border-slate-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
