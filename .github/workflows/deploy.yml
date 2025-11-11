@@ -1,31 +1,70 @@
+# Nombre descriptivo del workflow
 name: Deploy to GitHub Pages
 
 on:
+  # Se ejecuta en los pushes que apuntan a la rama main
   push:
     branches:
-      - main # Cambia esto a tu rama principal si es diferente (ej. master)
+      - main
+  # Te permite ejecutar este workflow manualmente desde la pestaña Actions
+  workflow_dispatch:
+
+# Agregamos 'concurrency' para evitar despliegues múltiples y conflictivos.
+# Si se hace un nuevo push, cancelará el despliegue anterior en progreso.
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
+# Establece los permisos del GITHUB_TOKEN para permitir el despliegue en GitHub Pages
+# Tu configuración de permisos es perfecta para el método moderno.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
 
 jobs:
-  build-and-deploy:
+  # Tarea de compilación (build)
+  build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout 🛎️
+      - name: Checkout
         uses: actions/checkout@v4
-
-      - name: Setup Node.js
+      
+      - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20' # Puedes especificar la versión de Node.js que uses
-          cache: 'npm' # O 'yarn', 'pnpm'
-
-      - name: Install dependencies 📦
+          # Asegúrate de que esta sea la versión correcta para tu proyecto
+          node-version: 18 
+          cache: 'npm'
+          
+      - name: Install dependencies
         run: npm install
-
-      - name: Build 🏗️
-        run: npm run build
-
-      - name: Deploy to GitHub Pages 🚀
-        uses: peaceiris/actions-gh-pages@v4
+        
+      - name: Build
+        # Este es tu comando de build. Si tu app se sirve desde un subdirectorio 
+        # (ej: usuario.github.io/repo-name/), asegúrate que tu build 
+        # (ej: vite.config.js) esté configurado con el 'base path' correcto.
+        run: npm run build 
+        
+      - name: Upload artifact
+        # Este es el paso clave: empaqueta tu carpeta 'dist' como un "Artefacto de Pages"
+        uses: actions/upload-pages-artifact@v3
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./dist
+          # Sube la carpeta 'dist' (o 'build', 'out', etc., según tu framework)
+          path: './dist'
+
+  # Tarea de despliegue (deploy)
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    # Esta tarea 'needs' (depende de) que la tarea 'build' termine exitosamente
+    needs: build
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        # Esta es la acción oficial de GitHub. Tomará el artefacto creado en
+        # el paso 'build' y lo desplegará. No usa 'git push' ni maneja ramas.
+        # Es mucho más limpio y soluciona todos los errores de tu log.
+        uses: actions/deploy-pages@v4
