@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import { UsergroupAddOutlined, SafetyCertificateOutlined, BarChartOutlined, CommentOutlined, ScheduleOutlined, AppstoreAddOutlined, CheckCircleOutlined, WarningOutlined, RiseOutlined, PieChartOutlined, TeamOutlined, ThunderboltOutlined, ArrowRightOutlined } from '@ant-design/icons';
-import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, AreaChart, Area } from 'recharts';
-import { LucideShield, LucideTarget, LucideUsers, LucideMessageCircle, LucideSmartphone, LucideLock, LucideCheckCircle2, LucideAlertTriangle, LucideTrendingUp, LucidePieChart, LucideShare2, LucideMousePointerClick, LucideShoppingCart } from 'lucide-react';
+import { useState } from 'react';
+import { UsergroupAddOutlined, SafetyCertificateOutlined, BarChartOutlined, CommentOutlined, ScheduleOutlined, AppstoreAddOutlined, CheckCircleOutlined, WarningOutlined, PieChartOutlined, ThunderboltOutlined, ArrowRightOutlined } from '@ant-design/icons';
+import { BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from 'recharts';
+import { LucideShield, LucideTarget, LucideUsers, LucideMessageCircle, LucideSmartphone, LucideLock, LucideCheckCircle2, LucideAlertTriangle, LucideTrendingUp, LucideShare2, LucideMousePointerClick, LucideShoppingCart } from 'lucide-react';
 
 // --- DATOS MOCKUP PARA GRÁFICOS (Basados en las imágenes del PDF) ---
 const dataFollowers = [
@@ -18,25 +18,22 @@ const dataInteractionTarget = [
   { name: 'Restante', value: 40 },
 ];
 
-const dataAmplification = [
-  { name: 'Compartidos', value: 850 },
-  { name: 'Total Seguidores', value: 5500 },
-];
-
-const dataClicks = [
-  { name: 'Visitas Web', value: 3200 },
-  { name: 'Visualizaciones', value: 15000 },
-];
-
 const dataConversion = [
   { name: 'Compras/Descargas', value: 320 },
   { name: 'Visitas Web', value: 3200 },
 ];
 
-const COLORS = ['#0ea5e9', '#e2e8f0', '#f59e0b', '#10b981'];
+// --- TIPOS PARA COMPONENTES ---
+interface KpiCardProps {
+  icon: React.ElementType;
+  title: string;
+  value: string | number;
+  subtitle?: string;
+  color?: string;
+}
 
 // --- COMPONENTES AUXILIARES ---
-const KpiCard = ({ icon: Icon, title, value, subtitle, color = "blue" }) => (
+const KpiCard: React.FC<KpiCardProps> = ({ icon: Icon, title, value, subtitle, color = "blue" }) => (
   <div className={`bg-white p-6 rounded-xl shadow-sm border-l-4 border-${color}-500 flex items-start space-x-4 hover:shadow-md transition-shadow`}>
     <div className={`p-3 rounded-lg bg-${color}-50 text-${color}-600`}>
       <Icon size={24} />
@@ -49,7 +46,7 @@ const KpiCard = ({ icon: Icon, title, value, subtitle, color = "blue" }) => (
   </div>
 );
 
-const PlatformCard = ({ logo, name, priority, target, formats, kpis, color }) => (
+const PlatformCard = ({ logo, name, priority, target, formats, kpis, color }: { logo: React.ReactNode, name: string, priority: string, target: string, formats: string[], kpis: string[], color: string }) => (
   <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-lg transition-all duration-300">
     <div className={`h-2 bg-${color}-500`}></div>
     <div className="p-6">
@@ -73,7 +70,7 @@ const PlatformCard = ({ logo, name, priority, target, formats, kpis, color }) =>
         <div>
           <h4 className="text-sm font-semibold text-gray-600 uppercase">Formatos</h4>
           <div className="flex flex-wrap gap-2 mt-1">
-            {formats.map((f, i) => (
+            {formats.map((f: string, i: number) => (
               <span key={i} className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-md">{f}</span>
             ))}
           </div>
@@ -81,7 +78,7 @@ const PlatformCard = ({ logo, name, priority, target, formats, kpis, color }) =>
          <div className="pt-3 border-t border-gray-50">
           <h4 className="text-sm font-semibold text-gray-600 uppercase mb-1">KPIs Principales</h4>
           <ul className="text-sm text-gray-500 list-disc list-inside">
-              {kpis.map((k, i) => <li key={i}>{k}</li>)}
+              {kpis.map((k: string, i: number) => <li key={i}>{k}</li>)}
           </ul>
         </div>
       </div>
@@ -585,7 +582,7 @@ export default function SegurAppStrategy() {
                         paddingAngle={5}
                         dataKey="value"
                       >
-                        {dataInteractionTarget.map((entry, index) => (
+                        {dataInteractionTarget.map((_entry, index) => (
                           <Cell key={`cell-${index}`} fill={index === 0 ? '#f59e0b' : '#e2e8f0'} />
                         ))}
                       </Pie>
@@ -614,7 +611,7 @@ export default function SegurAppStrategy() {
                       <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} tick={{fontSize: 11, fill: '#64748b'}} width={100} />
                       <Tooltip cursor={{fill: 'transparent'}} contentStyle={{borderRadius: '8px'}} />
                       <Bar dataKey="value" fill="#8b5cf6" radius={[0, 4, 4, 0]}>
-                         {dataConversion.map((entry, index) => (
+                         {dataConversion.map((_entry, index) => (
                           <Cell key={`cell-${index}`} fill={index === 0 ? '#10b981' : '#94a3b8'} />
                         ))}
                       </Bar>
